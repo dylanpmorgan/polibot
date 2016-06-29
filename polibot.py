@@ -81,7 +81,7 @@ class PoliBot(object):
                              "_markov_model.pkl"])
 
             with open(fname, "wb") as f:
-                pickle.dumps(sorin, f)
+                pickle.dump(sorin, f)
 
             self.markov_model = sorin
 
