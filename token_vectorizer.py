@@ -5,7 +5,7 @@ class TokenVectorizer(object):
     def __init__(self, nlp=None):
 
         if nlp is None:
-            self.nlp = spacy.en.English(tagger=True, parser=True,
+            self.nlp = spacy.en.English(tagger=True, parser=False,
                     entity=False, matcher=False)
         else:
             self.nlp = nlp

@@ -34,7 +34,7 @@ class PoliBot(object):
         # Initialize the vectorizer
         ###########################
         if nlp is None:
-            self.nlp = spacy.en.English(tagger=True, parser=True,
+            self.nlp = spacy.en.English(tagger=True, parser=False,
                     entity=False, matcher=False)
         else:
             self.nlp = nlp
