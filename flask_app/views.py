@@ -9,7 +9,7 @@ from connect_to_db import ConnectToDB
 from polibot import PoliBot
 
 st = time.time()
-nlp = spacy.en.English(tagger=True, parser=True, entity=False, matcher=False)
+nlp = spacy.en.English(tagger=True, parser=False, entity=False, matcher=False)
 global trump
 trump = PoliBot("trump", nlp=nlp)
 global clinton
