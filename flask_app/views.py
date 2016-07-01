@@ -4,6 +4,7 @@ import pdb, time, json, datetime
 import pandas as pd
 import spacy
 import random
+from collections import OrderedDict
 
 from connect_to_db import ConnectToDB
 from polibot import PoliBot
@@ -16,15 +17,28 @@ global clinton
 clinton = PoliBot("clinton",nlp=nlp)
 ed = time.time()
 print("Load up time %s" %(ed-st))
+global session_dict
+session_dict = {}
+
+class MaxDict(OrderedDict):
+   """
+   Ordered dictionary that holds a max number of elements.
+   """
+   def __init__(self, max_elements=100):
+       super(MaxDict, self).__init__()
+       self.max_elements = max_elements
+
+   def __setitem__(self, key, value):
+       if len(self) >= self.max_elements:
+           super(MaxDict, self).popitem(last=False)
+       super(MaxDict, self).__setitem__(key, value)
 
 @app.route('/')
 @app.route('/index')
 def index():
 
-    global session_dict
-    session_dict = {}
-    session_dict['session_id'] = ["_".join([str(random.getrandbits(12)),str(time.time())])]
-    session_dict['question_num'] = [0]
+    session_dict["session_id"] = ["_".join([str(random.getrandbits(12)),str(time.time()]
+    session_dict["session_id"]['question_num'] = [0]
 
     return render_template("index.html", title='Home')
 
