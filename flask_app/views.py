@@ -16,13 +16,13 @@ global clinton
 clinton = PoliBot("clinton",nlp=nlp)
 ed = time.time()
 print("Load up time %s" %(ed-st))
-global session_dict
-session_dict = {}
 
 @app.route('/')
 @app.route('/index')
 def index():
 
+    global session_dict
+    session_dict = {}
     session_dict['session_id'] = ["_".join([str(random.getrandbits(12)),str(time.time())])]
     session_dict['question_num'] = [0]
 
@@ -134,7 +134,6 @@ def results():
                               str(int(qr['session_total']))
                               ])
 
-    session_dict = {}
     return render_template("results.html", results_data=json.dumps(all_results),
                            trump_score=trump_score,
                            clinton_score=clinton_score)
