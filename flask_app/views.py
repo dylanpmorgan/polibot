@@ -9,17 +9,6 @@ from collections import OrderedDict
 from connect_to_db import ConnectToDB
 from polibot import PoliBot
 
-st = time.time()
-nlp = spacy.en.English(tagger=True, parser=False, entity=False, matcher=False)
-global trump
-trump = PoliBot("trump", nlp=nlp)
-global clinton
-clinton = PoliBot("clinton",nlp=nlp)
-ed = time.time()
-print("Load up time %s" %(ed-st))
-global session_dict
-session_dict = {}
-
 class MaxDict(OrderedDict):
    """
    Ordered dictionary that holds a max number of elements.
@@ -33,12 +22,28 @@ class MaxDict(OrderedDict):
            super(MaxDict, self).popitem(last=False)
        super(MaxDict, self).__setitem__(key, value)
 
+st = time.time()
+nlp = spacy.en.English(tagger=True, parser=False, entity=False, matcher=False)
+global trump
+trump = PoliBot("trump", nlp=nlp)
+global clinton
+clinton = PoliBot("clinton",nlp=nlp)
+ed = time.time()
+print("Load up time %s" %(ed-st))
+global session_dict
+session_dict = MaxDict()
+
 @app.route('/')
 @app.route('/index')
 def index():
 
-    session_dict['session_id'] = ["_".join([str(random.getrandbits(12)),str(time.time())])]
-    session_dict['question_num'] = [0]
+    global session_id
+    session_id = "_".join([str(random.getrandbits(12)),str(time.time())])
+    print(session_id)
+
+    session_dict[session_id] = {}
+    session_dict[session_id]['session_id'] = [session_id]
+    session_dict[session_id]['question_num'] = [0]
 
     return render_template("index.html", title='Home')
 
@@ -65,18 +70,18 @@ def output():
         return render_template("input2.html", error_msg=question_error,
                 responses=responseSessionData)
     else:
-        session_dict['question'] = [question]
+        session_dict[session_id]['question'] = [question]
         getData(question=question)
 
     return render_template("output2.html",
-            question=session_dict['question'][0],
+            question=session_dict[session_id]['question'][0],
             trump_data=json.dumps([{
-                    "text": session_dict['trump_text'][0],
-                    "size": float(0.05+session_dict['trump_sim'][0])
+                    "text": session_dict[session_id]['trump_text'][0],
+                    "size": float(0.05+session_dict[session_id]['trump_sim'][0])
                     }]),
             clinton_data=json.dumps([{
-                    "text": session_dict['clinton_text'][0],
-                    "size": float(0.05+session_dict['clinton_sim'][0])
+                    "text": session_dict[session_id]['clinton_text'][0],
+                    "size": float(0.05+session_dict[session_id]['clinton_sim'][0])
                     }])
             )
 
@@ -110,11 +115,11 @@ def results():
                 FROM response_table
                 WHERE session_id = '%s') as session_trump_correct
         FROM response_table;
-    """ %(session_dict['session_id'][0],
-          session_dict['session_id'][0],
-          session_dict['session_id'][0],
-          session_dict['session_id'][0],
-          session_dict['session_id'][0])
+    """ %(session_id,
+          session_id,
+          session_id,
+          session_id,
+          session_id)
 
     DB = ConnectToDB()
     qr = DB.pull_from_db(allQuery)
@@ -164,41 +169,41 @@ def logData():
 
             # if user selected "bot"
             if trumpResp == "Tbot":
-                session_dict['trump_userguess'] = ["bot"]
+                session_dict[session_id]['trump_userguess'] = ["bot"]
                 # if response is "bot"
-                if (session_dict['trump_isbot'][0]) == 1:
+                if (session_dict[session_id]['trump_isbot'][0]) == 1:
                     # answer = 1 (correct)
-                    session_dict['trump_answer'] = [1]
+                    session_dict[session_id]['trump_answer'] = [1]
                 else:
                     # answer = 0 (wrong)
-                    session_dict['trump_answer'] = [0]
+                    session_dict[session_id]['trump_answer'] = [0]
             # else if user selected "not"
             else:
-                session_dict['trump_userguess'] = ["not"]
+                session_dict[session_id]['trump_userguess'] = ["not"]
                 # if response is "bot"
-                if (session_dict['trump_isbot'][0]) == 1:
+                if (session_dict[session_id]['trump_isbot'][0]) == 1:
                     #answer is wrong
-                    session_dict['trump_answer'] = [0]
+                    session_dict[session_id]['trump_answer'] = [0]
                 else:
                     # else answer is right
-                    session_dict['trump_answer'] = [1]
+                    session_dict[session_id]['trump_answer'] = [1]
 
             if clintonResp == "Cbot":
-                session_dict['clinton_userguess'] = ["bot"]
-                if (session_dict['clinton_isbot'][0]) == 1:
-                    session_dict['clinton_answer'] = [1]
+                session_dict[session_id]['clinton_userguess'] = ["bot"]
+                if (session_dict[session_id]['clinton_isbot'][0]) == 1:
+                    session_dict[session_id]['clinton_answer'] = [1]
                 else:
-                    session_dict['clinton_answer'] = [0]
+                    session_dict[session_id]['clinton_answer'] = [0]
             else:
-                session_dict['clinton_userguess'] = ["not"]
-                if (session_dict['clinton_isbot'][0]) == 1:
-                    session_dict['clinton_answer'] = [0]
+                session_dict[session_id]['clinton_userguess'] = ["not"]
+                if (session_dict[session_id]['clinton_isbot'][0]) == 1:
+                    session_dict[session_id]['clinton_answer'] = [0]
                 else:
-                    session_dict['clinton_answer'] = [1]
+                    session_dict[session_id]['clinton_answer'] = [1]
 
-            session_dict['question_num'][0]+=1
-            session_dict['date'] = [dt.year*10000 + 100*dt.month + dt.day]
-            session_dict['time'] = [dt.hour*1e4+dt.minute*1e2+round(dt.microsecond/1e6, 3)]
+            session_dict[session_id]['question_num'][0]+=1
+            session_dict[session_id]['date'] = [dt.year*10000 + 100*dt.month + dt.day]
+            session_dict[session_id]['time'] = [dt.hour*1e4+dt.minute*1e2+round(dt.microsecond/1e6, 3)]
 
             # Update markov chain
             '''
@@ -208,10 +213,10 @@ def logData():
             '''
 
             DB = ConnectToDB()
-            DB.save_to_db('response_table', session_dict)
+            DB.save_to_db('response_table', session_dict[session_id])
 
             #responseSessionData.append(saved)
-            session_data = getSessionData(session_dict['session_id'][0])
+            session_data = getSessionData(session_id)
 
             # you can redirect to home page on successful commit. or anywhere else
             return render_template("input2.html", error_msg="",
@@ -235,9 +240,9 @@ def getData(question=None):
     trump_best = [(1, bb[1], bb[2]) for bb in best_bot]+ \
                  [(0, bt[1], bt[2]) for bt in best_text]
     random.shuffle(trump_best)
-    session_dict["trump_isbot"] = [trump_best[0][0]]
-    session_dict["trump_text"] = [trump_best[0][1]]
-    session_dict["trump_sim"] = [trump_best[0][2]]
+    session_dict[session_id]["trump_isbot"] = [trump_best[0][0]]
+    session_dict[session_id]["trump_text"] = [trump_best[0][1]]
+    session_dict[session_id]["trump_sim"] = [trump_best[0][2]]
 
     #####################
     # Clinton
@@ -249,9 +254,9 @@ def getData(question=None):
     clinton_best = [(1, bb[1], bb[2]) for bb in best_bot]+ \
                    [(0, bt[1], bt[2]) for bt in best_text]
     random.shuffle(clinton_best)
-    session_dict["clinton_isbot"] = [clinton_best[0][0]]
-    session_dict["clinton_text"] = [clinton_best[0][1]]
-    session_dict["clinton_sim"] = [clinton_best[0][2]]
+    session_dict[session_id]["clinton_isbot"] = [clinton_best[0][0]]
+    session_dict[session_id]["clinton_text"] = [clinton_best[0][1]]
+    session_dict[session_id]["clinton_sim"] = [clinton_best[0][2]]
 
     ed = time.time()
     print("%s time to generate responses" %(ed-st))
@@ -272,6 +277,7 @@ def getSessionData(sessionID=None):
     """ %(sessionID)
 
     DB = ConnectToDB()
+
     queryresults = DB.pull_from_db(sqlQuery)
 
     return pd.DataFrame.to_dict(queryresults, 'records')
