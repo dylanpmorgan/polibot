@@ -38,7 +38,7 @@ class MaxDict(OrderedDict):
 def index():
 
     session_dict['session_id'] = ["_".join([str(random.getrandbits(12)),str(time.time())])]
-    session_dict['session_id']['question_num'] = [0]
+    session_dict['question_num'] = [0]
 
     return render_template("index.html", title='Home')
 
