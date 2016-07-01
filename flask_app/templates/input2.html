@@ -49,6 +49,9 @@
           <form  action="/output" method="GET">
 
             <div class="row marketing">
+              <h3> {{ error_msg }} </h3>
+            </div>
+            <div class="row marketing">
               <div class="form-group">
                 <input type="text" id="question" name='question' placeholder="e.g. ">
               </div>
@@ -71,9 +74,9 @@
       <div class="row marketing">
         <h2>Question Summary:</h2>
         {% for response in responses %}
-        <b>Question {{ response['question_num'][0] }}: </b>{{ response['question'][0] }}<br>
-        <b>Trump Answer:</b> {{ response['trump_response'][0] }}<br>
-        <b>Clinton Answer:</b> {{ response['clinton_response'][0] }}<br><br>
+        <b>Question {{ response['question_num'] }}: </b>{{ response['question'] }}<br>
+        <b>Trump Answer:</b> {{ response['trump_text'] }} <b>[You chose {{ response['trump_userguess'] }}]</b><br>
+        <b>Clinton Answer:</b> {{ response['clinton_text'] }} <b>[You chose {{ response['clinton_userguess'] }}]</b><br><br>
         {% endfor %}
       </div>
 

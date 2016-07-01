@@ -82,30 +82,32 @@
       </div>
 
       <div class="jumbotron">
-        <h2>Of your {{ questionTot1 }} selected responses...</h2>
+        <h2>How well did you do!?</h2>
+        <div class="row marketing">
+          <h3>{{ trump_score }} times you were able to distinguish between Trump and Trump Bot!</h3>
+        </div>
         <div class="row marketing">
           <div class="col-lg-6 col-md-6 col-sm-6">
-            <h3>Real Trump quotes: {{ trumpCt }} </h3>
             <img src={{ url_for('static', filename="img/trump_only.png") }}>
           </div>
           <div class="col-lg-6 col-md-6 col-sm-6">
-            <h3>TrumpBot Quotes: {{ trumpBotCt }} </h3>
             <img src={{ url_for('static', filename="img/trump_bender.png") }}>
           </div>
         </div>
         <div class="row marketing">
+          <h3>{{ clinton_score }} times you were able to distinguish between Clinton and Clinton Bot!</h3>
+        </div>
+        <div class="row marketing">
           <div class="col-lg-6 col-md-6 col-sm-6">
-            <h3>Real Clinton quotes: {{ hilaryCt }}</h3>
             <img src={{ url_for('static', filename="img/clinton_only.png") }}>
           </div>
           <div class="col-lg-6 col-md-6 col-sm-6">
-            <h3>ClintonBot quotes: {{ hilaryBotCt }}</h3>
             <img src={{ url_for('static', filename="img/hilary_bender.png") }}>
           </div>
         </div>
         <h3> How well did you do compared to everyone else? </h3>
         <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <h2> Share your results on myspace! </h2>
+        <h2> Share your results on Facebook! </h2>
       </div>
 
     </div> <!-- /container -->

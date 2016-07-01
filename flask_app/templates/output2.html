@@ -44,7 +44,7 @@
             <li role="presentation"><a href="#">Contact</a></li>
           </ul>
         </nav>
-        <h3 class="text-muted">PoliBot Wars</h3>
+        <h3 class="text-muted">PoliBot</h3>
       </div>
 
       <div class="row market">
@@ -126,9 +126,9 @@
         .container("#viz_trump")  // container DIV to hold the visualization
         .data(sample_data)  // data to use with the visualization
         .type("tree_map")   // visualization type
-        .id("speaker_text")         // key for which our data is unique on
-        .size("size")      // sizing of blocks
+        .id("text")         // key for which our data is unique on
         .height(185)
+        .size("size")
         .draw();
 
       var sample_data2 = {{ clinton_data|safe }}
@@ -137,9 +137,9 @@
         .container("#viz_clinton")  // container DIV to hold the visualization
         .data(sample_data2)  // data to use with the visualization
         .type("tree_map")   // visualization type
-        .id("speaker_text")         // key for which our data is unique on
-        .size("size")      // sizing of blocks
+        .id("text")         // key for which our data is unique on
         .height(185)
+        .size("size")
         .draw();
 
       var toggles = d3plus.form()
