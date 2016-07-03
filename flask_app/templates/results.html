@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 
+{% block extrahead %}
+<title>politbots</title>
+  <!-- You can use Open Graph tags to customize link previews.
+  Learn more: https://developers.facebook.com/docs/sharing/webmasters -->
+<meta property="og:type"          content="website" />
+<meta property="og:title"         content="polibots" />
+<meta property="og:description"   content="Times you were able to distinguish between Trump and Trump Bot!"/>
+<meta property="og:image" content={{ url_for('static', filename="img/trump_bender.png") }} />
+{% endblock %}
+
 {% block scripts %}
 <script type="text/javascript" src={{ url_for('static', filename="js/jquery-1.9.1.js") }}></script>
 <script type='text/javascript'>
@@ -32,10 +42,19 @@ $('#container').highcharts({
     series: {{ results_data|safe }}
   });
 });
-
 </script>
+
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
 {% endblock %}
 
 {% block home %}
@@ -69,6 +88,9 @@ $('#container').highcharts({
   </div>
   <h3> How well did you do compared to everyone else? </h3>
   <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-  <h2> Share your results on Facebook! </h2>
+  <!-- Your share button code -->
+
+  <h2>Share your results with others!</h2>
+  <div class="fb-share-button" data-href="http://www.polibot.us" data-layout="button" data-size="large" data-mobile-iframe="false"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Fwww.polibot.us%2F&amp;src=sdkpreparse">Share</a></div>
 </div>
 {% endblock %}

@@ -15,24 +15,14 @@ class MarkovChain(object):
 
         return self
 
-    def update(self, corpus, contribution=1):
-        new_model = Text(corpus, self.state_size)
+    def update(self, corpus, contribution=1, filename=None):
+        new_model = Chain(corpus, self.state_size)
         self.model = combine([self.model, new_model], [1, contribution])
-
-        # Get the filename for the model to be saved.
-        # A new model file is made every week, this allows for some ability
-        # to refer back to old models if things get weird.
-        dt = datetime.datetime.now()
-        wk_of_yr = datetime.date(dt.year, dt.month, dt.day).isocalendar()[1]
-        timestamp = dt.year*100+wk_of_yr
-        fname = "".join([PoliBot.path,
-                         PolitBot.candidate,
-                         "_markov_models/",
-                         str(timestamp),
-                         "_markov_model.pkl"])
-
-        with open(fname, "wb") as f:
+        print(filename)
+        with open(filename, "wb") as f:
             pickle.dump(self.model, f)
+
+        print("Updated Markov Chain!")
 
         return self
 

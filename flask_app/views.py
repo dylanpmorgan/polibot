@@ -56,8 +56,6 @@ def about():
 @app.route('/output', methods=['GET', 'POST'])
 def output():
 
-    sumSessionCounter()
-
     question = request.args.get("question")
 
     question_error=""
@@ -166,6 +164,8 @@ def logData():
 
         if trumpResp is not None and clintonResp is not None:
             dt = datetime.datetime.now()
+            wk_of_yr = datetime.date(dt.year, dt.month, dt.day).isocalendar()[1]
+            timestamp = dt.year*100+wk_of_yr
 
             # if user selected "bot"
             if trumpResp == "Tbot":
@@ -201,16 +201,37 @@ def logData():
                 else:
                     SD[session['id']]['clinton_answer'] = [1]
 
+            # Set some quetion specific variables. Date/time of question
             SD[session['id']]['question_num'][0]+=1
             SD[session['id']]['date'] = [dt.year*10000 + 100*dt.month + dt.day]
-            SD[session['id']]['time'] = [dt.hour*1e4+dt.minute*1e2+round(dt.microsecond/1e6, 3)]
+            SD[session['id']]['time'] = [dt.hour*1e4 +
+                                         dt.minute*1e2 +
+                                         round(dt.microsecond/1e6, 3)]
 
             # Update markov chain
-            '''
-            if saved['trump_isbot'][0]==1:
-                MarkovChain.update(saved['trump_response'])
-            elif saved['clinton_isbot'][0]==1:
-            '''
+            if (SD[session['id']]['trump_userguess'][0] == "bot" and
+                SD[session['id']]['trump_answer'][0] == 0):
+
+                fname = "".join([trump.path, trump.candidate,
+                                 "_markov_models/", str(timestamp),
+                                 "_markov_model.pkl"])
+
+                trump.markov_model.update(
+                        [SD[session['id']]["trump_text"]],
+                        SD[session['id']]["trump_sim"][0],
+                        filename=fname)
+
+            elif (SD[session['id']]['clinton_userguess'][0] == "bot" and
+                  SD[session['id']]['clinton_answer'][0] == 0):
+
+                fname = "".join([clinton.path, clinton.candidate,
+                                 "_markov_models/", str(timestamp),
+                                 "_markov_model.pkl"])
+
+                clinton.markov_model.update(
+                        [SD[session['id']]["clinton_text"]],
+                        SD[session['id']]["clinton_sim"][0],
+                        filename=fname)
 
             DB = ConnectToDB()
             DB.save_to_db('response_table', SD[session['id']])
