@@ -15,14 +15,9 @@ class MarkovChain(object):
 
         return self
 
-    def update(self, corpus, contribution=1, filename=None):
+    def update(self, corpus, contribution=1):
         new_model = Chain(corpus, self.state_size)
         self.model = combine([self.model, new_model], [1, contribution])
-        print(filename)
-        with open(filename, "wb") as f:
-            pickle.dump(self.model, f)
-
-        print("Updated Markov Chain!")
 
         return self
 

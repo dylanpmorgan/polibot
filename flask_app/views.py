@@ -25,23 +25,30 @@ class MaxDict(OrderedDict):
 
 st = time.time()
 nlp = spacy.en.English(tagger=True, parser=False, entity=False, matcher=False)
-trump = PoliBot("trump", nlp=nlp)
-clinton = PoliBot("clinton",nlp=nlp)
 ed = time.time()
 print("Load up time %s" %(ed-st))
 
 # Session Dictionary. Stores the data for various settings
 # Only stores 100 sessions, after it fills up it pops the oldest element off.
 SD = MaxDict()
+# Stores the session models. Not the best solution but it works.
+MD = MaxDict(max_elements=20)
 
 @app.route('/')
 @app.route('/index')
 def index():
+    trump = PoliBot("trump", nlp=nlp)
+    clinton = PoliBot("clinton",nlp=nlp)
+
     session['id'] = uuid4()
 
     SD[session['id']] = {}
     SD[session['id']]['session_id'] = session['id']
     SD[session['id']]['question_num'] = [0]
+
+    MD[session['id']] = {}
+    MD[session['id']]['trump'] = trump
+    MD[session['id']]['clinton'] = clinton
 
     return render_template("index.html", title='Home')
 
@@ -63,7 +70,7 @@ def output():
         question_error="Can you repeat the question?"
         return render_template("input.html", error_msg=question_error,
                 responses=getSessionData(session['id']))
-    elif len(trump.TV.get_tokens(question))==0:
+    elif len(MD[session['id']]['trump'].TV.get_tokens(question))==0:
         question_error="You will have to be more specific with your question"
         return render_template("input.html", error_msg=question_error,
                 responses=getSessionData(session['id']))
@@ -212,26 +219,20 @@ def logData():
             if (SD[session['id']]['trump_userguess'][0] == "bot" and
                 SD[session['id']]['trump_answer'][0] == 0):
 
-                fname = "".join([trump.path, trump.candidate,
-                                 "_markov_models/", str(timestamp),
-                                 "_markov_model.pkl"])
-
-                trump.markov_model.update(
+                #global trump
+                MD[session['id']]['trump'] = \
+                MD[session['id']]['trump'].update_model(
                         [SD[session['id']]["trump_text"]],
-                        SD[session['id']]["trump_sim"][0],
-                        filename=fname)
+                        SD[session['id']]["trump_sim"][0])
 
             elif (SD[session['id']]['clinton_userguess'][0] == "bot" and
                   SD[session['id']]['clinton_answer'][0] == 0):
 
-                fname = "".join([clinton.path, clinton.candidate,
-                                 "_markov_models/", str(timestamp),
-                                 "_markov_model.pkl"])
-
-                clinton.markov_model.update(
+                #global clinton
+                MD[session['id']]['clinton'] = \
+                MD[session['id']]['clinton'].update_model(
                         [SD[session['id']]["clinton_text"]],
-                        SD[session['id']]["clinton_sim"][0],
-                        filename=fname)
+                        SD[session['id']]["clinton_sim"][0])
 
             DB = ConnectToDB()
             DB.save_to_db('response_table', SD[session['id']])
@@ -247,13 +248,14 @@ def getData(question=None):
     st = time.time()
     num_sent = 2000
     n_return = 3
-
     #####################
     # Trump
-    responses = trump.get_responses(num_sent=num_sent)
+    responses = MD[session['id']]['trump'].get_responses(num_sent=num_sent)
     response_text = [" ".join(response[0].split( )) for response in responses]
-    best_bot = trump.response_tfidf_matches(response_text, question, n_return=n_return)
-    best_text = trump.text_tfidf_matches(question, n_return=n_return)
+    best_bot = MD[session['id']]['trump'].response_tfidf_matches(
+            response_text, question, n_return=n_return)
+    best_text = MD[session['id']]['trump'].text_tfidf_matches(
+            question, n_return=n_return)
 
     trump_best = [(1, bb[1], bb[2]) for bb in best_bot]+ \
                  [(0, bt[1], bt[2]) for bt in best_text]
@@ -264,10 +266,12 @@ def getData(question=None):
 
     #####################
     # Clinton
-    responses = clinton.get_responses(num_sent=num_sent)
+    responses = MD[session['id']]['clinton'].get_responses(num_sent=num_sent)
     response_text = [" ".join(response[0].split( )) for response in responses]
-    best_bot = clinton.response_tfidf_matches(response_text, question, n_return=n_return)
-    best_text = clinton.text_tfidf_matches(question, n_return=n_return)
+    best_bot = MD[session['id']]['clinton'].response_tfidf_matches(
+            response_text, question, n_return=n_return)
+    best_text = MD[session['id']]['clinton'].text_tfidf_matches(
+            question, n_return=n_return)
 
     clinton_best = [(1, bb[1], bb[2]) for bb in best_bot]+ \
                    [(0, bt[1], bt[2]) for bt in best_text]

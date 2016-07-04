@@ -94,6 +94,23 @@ class PoliBot(object):
         # Log dictionary for questions and responses
         self.idnum = 0
 
+    def update_model(self, text, sim):
+
+        new_sorin = self.markov_model.update(text, sim)
+
+        dt = datetime.datetime.now()
+        wk_of_yr = datetime.date(dt.year, dt.month, dt.day).isocalendar()[1]
+        timestamp = dt.year*100+wk_of_yr
+        fname = "".join([self.path, self.candidate, "_markov_models/",
+                         str(timestamp),"_markov_model.pkl"])
+
+        with open(fname, "wb") as f:
+            pickle.dump(new_sorin, f)
+
+        self.markov_model = new_sorin
+
+        return self
+
     def question_getbest_responses(self, question, nsent=100):
 
             responses = self.get_responses(num_sent=nsent)
