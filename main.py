@@ -20,11 +20,15 @@ def main():
     ed = time.time()
     print("Time to load clinton: %s seconds" %(ed-st))
 
-    num_sent = 1000
-    n_return = 1
+    num_sent = 5000
+    n_return = 5
+    question = "What are your thoughts on abortion?"
     responses = trump.get_responses(num_sent=num_sent)
     response_text = [" ".join(response[0].split( )) for response in responses]
     best_bot = trump.response_tfidf_matches(response_text, question, n_return=n_return)
+    best_lsi = trump.response_lsi_matches(response_text, question, n_return=n_return)
+    tfidf_text = trump.text_tfidf_matches(question, n_return=n_return)
+    lsi_text = trump.text_lsi_matches(question, n_return=n_return)
 
     pdb.set_trace()
 

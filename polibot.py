@@ -52,12 +52,16 @@ class PoliBot(object):
             self.corpus = corpus_df['speaker_text'].values.tolist()
             self.index = similarities.MatrixSimilarity.load(
                     "".join([self.path,self.candidate,'_tfidf_index.index']))
+            self.lsi_index = similarities.MatrixSimilarity.load(
+                    "".join([self.path,self.candidate,'_lsi_index.index']))
         else:
             corpus_df = self.DB.pull_candidate_corpus('corpus_table', self.candidate)
             self.corpus = corpus_df['speaker_text'].values.tolist()
             self.TP.prepare_candidate_corpus(self.corpus, self.candidate)
             self.index = similarities.MatrixSimilarity.load(
                     "".join([self.path,self.candidate,'_tfidf_index.index']))
+            self.lsi_index = similarities.MatrixSimilarity.load(
+                    "".join([self.path,self.candidate,'_lsi_index.index']))
 
         #############################
         # Initialize the markov chain
@@ -171,9 +175,9 @@ class PoliBot(object):
         else:
             return [(sims[i][0],sentences[sims[i][0]],sims[i][1]) for i in range(n_return)]
 
-    def text_lsi_matches(self, sentences, question, n_return=5):
+    def text_lsi_matches(self, question, n_return=5):
 
-        sims = self.index[self.TP.lsi[self.TP.tfidf[self.TP.get_doc2bow(question)]]]
+        sims = self.lsi_index[self.TP.lsi[self.TP.tfidf[self.TP.get_doc2bow(question)]]]
         sims = sorted(enumerate(sims), key=lambda item: -item[1])
 
         if n_return is None:
